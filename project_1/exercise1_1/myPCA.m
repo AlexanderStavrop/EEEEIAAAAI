@@ -10,7 +10,7 @@ function [eigenval, eigenvec, order] = myPCA(X)
 X_centered = X - mean(X);
 
 % Compute the covariance matrix
-Sigma = (1 / m) * (X_centered' * X_centered);
+Sigma = 1/m * X_centered' * X_centered;
 
 % Compute eigenvectors and eigenvalues
 [eigenvec, eigenval] = eig(Sigma);

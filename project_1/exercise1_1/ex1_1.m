@@ -151,7 +151,7 @@ axis square;
 X_PCA = projectData(X_norm, eigvecs, 2);
 
 % Plot the samples on the first two principal components
-figure('Name','Perform PCA on all features in the dataset');
+figure('Name','Perform PCA on all features in the dataset dfasdfasdf2');
 scatter(X_PCA(:,1), X_PCA(:,2), 30, Y, 'filled');
 title('Breast Cancer Dataset - PCA reduced in 2D');
 xlabel('Principal Component 1');
@@ -175,6 +175,7 @@ fprintf('\nLoading face dataset.\n\n');
 load ('data/faces.mat')
 
 %  Display the first 100 faces in the dataset
+figure();
 displayData(X(1:100, :));
 
 %% =========== Part 6: PCA on Face Data: Eigenfaces  ===================

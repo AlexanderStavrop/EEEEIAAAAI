@@ -5,8 +5,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image, ImageDraw
 
+############################################################
+# Calculate the aspect ratio of the digit in the image     #
+#                                                          #
+# @param image: A 1D numpy array representing the image.   #
+# @return: The aspect ratio of the digit in the image.     #
+############################################################
 def aspect_ratio(image):
-  """Calculates the aspect ratio of the bounding box around the foreground pixels."""
   try:
     # Extract image data and reshape it (assuming data is in a column named 'image')
     img = image.values.reshape(28, 28)
@@ -18,7 +23,7 @@ def aspect_ratio(image):
     if nonzero_pixels[0].size == 0:
       return np.nan  # Return NaN if no foreground pixels found
 
-
+    ########################################################################################################################## Added code starts here
     # Get minimum and maximum coordinates of foreground pixels
     min_col, min_row = np.min(nonzero_pixels[1]), np.min(nonzero_pixels[0])
     max_col, max_row = np.max(nonzero_pixels[1]), np.max(nonzero_pixels[0])
@@ -29,40 +34,20 @@ def aspect_ratio(image):
 
     # Calculate aspect ratio
     aspect_ratio = width / height
-    ##########################################################################################################################
+    ########################################################################################################################## Added code ends here
     return aspect_ratio
 
   except (KeyError, ValueError) as e:
     print(f"Error processing image in row {image.name}: {e}")
     return np.nan  # Return NaN for rows with errors
 
-def calculate_centroid(image):
-    """
-    Calculate the normalized centroid (center of mass) of the image.
 
-    Returns:
-    tuple: The (x, y) coordinates of the centroid normalized by image dimensions.
-    """
-    # Extract image data and reshape it (assuming data is in a column named 'image')
-    img = image.values.reshape(28, 28)
-    rows, cols = img.shape
-    #### ADD YOUR CODE HERE #####
-    total_mass = np.sum(img)
-    x_center = np.sum(np.sum(img, axis=0) * np.arange(cols)) / total_mass
-    y_center = np.sum(np.sum(img, axis=1) * np.arange(rows)) / total_mass
-    # print(x_center, y_center)
-    ## Create a single scalar as a centroid feature using x+(y * w) where w is the width of the image
-    centroid = x_center + (y_center * cols)
-    return centroid
-
-def min_max_scaling(X, min_val=-1, max_val=1):
-    """Scales features to a range between min_val and max_val."""
-    ##########################################################################################################################
-    X_scaled = (X - X.min()) / (X.max() - X.min())  # Min-max normalization
-    X_scaled = X_scaled * (max_val - min_val) + min_val  # Scaling to the desired range
-    ##########################################################################################################################
-    return X_scaled
-
+############################################################
+# Calculate the number of foreground pixels in the image   #
+#                                                          #
+# @param image: A 1D numpy array representing the image.   #
+# @return: The number of foreground pixels in the image.   #
+############################################################
 def foreground_pixels(image):
     """
     Calculate the pixel density of the image, defined as the
@@ -78,18 +63,69 @@ def foreground_pixels(image):
         # Extract image data and reshape it (assuming data is in a column named 'image')
         img = image.values.reshape(28, 28)
 
-        ##########################################################################################################################
+        ###################################################################################################################### Added code starts here
         # Find non-zero foreground pixels
         nonzero_pixels = np.count_nonzero(img)
         if nonzero_pixels == 0:
             print(f"Warning: Couldn't find nonzero pixels on  {image.name}")
             return np.nan  # Return NaN if no foreground pixels found
         return nonzero_pixels
-        ##########################################################################################################################
+        ###################################################################################################################### Added code ends here
     except (KeyError, ValueError) as e:
         print(f"Error processing image in row  {image.name}: {e}")
         return np.nan  # Return NaN for rows with errors
-    
+
+
+############################################################
+# Calculate the centroid of the digit in the image         #
+#                                                          #
+# @param image: A 1D numpy array representing the image.   #
+# @return: The centroid of the digit in the image.         #
+############################################################
+def calculate_centroid(image):
+    """
+    Calculate the normalized centroid (center of mass) of the image.
+
+    Returns:
+    tuple: The (x, y) coordinates of the centroid normalized by image dimensions.
+    """
+    # Extract image data and reshape it (assuming data is in a column named 'image')
+    img = image.values.reshape(28, 28)
+    rows, cols = img.shape
+    ###################################################################################################################### Added code starts here
+    total_mass = np.sum(img)
+    x_center = np.sum(np.sum(img, axis=0) * np.arange(cols)) / total_mass
+    y_center = np.sum(np.sum(img, axis=1) * np.arange(rows)) / total_mass
+    # Create a single scalar as a centroid feature using x+(y * w) where w is the width of the image
+    centroid = x_center + (y_center * cols)
+    ###################################################################################################################### Added code ends here
+
+    return centroid
+
+
+############################################################
+# Min-max scaling of the feature set                       #
+#                                                          #
+# @param X: The feature set to scale.                      #
+# @param min_val: The minimum value of the range.          #
+# @param max_val: The maximum value of the range.          #
+# @return: The scaled feature set.                         #   
+############################################################
+def min_max_scaling(X, min_val=-1, max_val=1):
+    """Scales features to a range between min_val and max_val."""
+    ########################################################################################################################## Added code starts here
+    X_normalized = (X - X.min()) / (X.max() - X.min())      # Min-max normalization
+    X_scaled = X_normalized * (max_val - min_val) + min_val # Scaling to the desired range
+    ########################################################################################################################## Added code ends here
+    return X_scaled
+
+
+############################################################
+# Calculate the bounding box around the digit in an image  #
+#                                                          #
+# @param image: A 1D numpy array representing the image.   #
+# @return: The bounding box around the digit in the image. #
+############################################################
 def calculate_bounding_box(image):
     # Find non-zero foreground pixels
     nonzero_pixels = np.nonzero(image)
@@ -98,12 +134,20 @@ def calculate_bounding_box(image):
         return np.nan  # Return NaN if no foreground pixels found
 
     # Get minimum and maximum coordinates of foreground pixels
-    #### ADD YOUR CODE HERE #####
+    ########################################################################################################################## Added code starts here
     min_col, min_row = np.min(nonzero_pixels[1]), np.min(nonzero_pixels[0])
     max_col, max_row = np.max(nonzero_pixels[1]), np.max(nonzero_pixels[0])
+    ########################################################################################################################## Added code ends here
 
     return min_col-1, min_row-1, max_col+1, max_row+1
 
+
+########################################################
+# Visualize the bounding box around the digit in an image
+#
+# @param image: A 1D numpy array representing the image.
+# @param color: The color of the bounding box.
+########################################################
 def visualize_bounding_box(image, color='red'):
     """Visualizes the bounding box around the digit in an image."""
     bbox = calculate_bounding_box(image)
@@ -121,6 +165,13 @@ def visualize_bounding_box(image, color='red'):
     sample_image_XL_bbox = sample_image_img.resize((28 * scaling, 28 * scaling), resample=Image.NEAREST)
     sample_image_XL_bbox.show()
 
+
+###########################################################################
+# Naive Bayes Classifier for Gaussian distributions                       #
+#                                                                         #
+# @param class_priors: The prior probabilities for each class.
+# @param class_stats: The mean and covariance for each class.
+###########################################################################
 class MyBayesClassifier:
     def __init__(self):
         self.class_priors = {}
@@ -135,19 +186,23 @@ class MyBayesClassifier:
         X (pd.DataFrame): DataFrame with features.
         y (pd.Series): Series with target class labels.
         """
-        #### ADD YOUR CODE HERE #####
+        ########################################################################################################################## Added code starts here
         self.classes_ = np.unique(y)
         for class_label in self.classes_:
             # Filter data by class
             X_class = X[y == class_label]
             # Calculate prior probability for the class
             self.class_priors[class_label] = len(X_class) / len(X)
+        ########################################################################################################################## Added code ends here
+
+        ########################################################################################################################## Added code starts here
             # Calculate mean and covariance for the class
             # Adding a small value to the covariance for numerical stability
             self.class_stats[class_label] = {
                 'mean': X_class.mean(),
                 'cov': X_class.cov() + 1e-4 * np.identity(X.shape[1])
             }
+        ########################################################################################################################## Added code ends here
 
     def predict(self, X):
         """
@@ -159,9 +214,10 @@ class MyBayesClassifier:
         Returns:
         np.array: Predicted class labels.
         """
-        #### ADD YOUR CODE HERE #####
+        ########################################################################################################################## Added code starts here
         # For each sample in X, predict the class
         predictions = X.apply(self._predict_instance, axis=1)
+        ########################################################################################################################## Added code ends here
         return np.array(predictions)
 
     def _predict_instance(self, x):
@@ -177,8 +233,7 @@ class MyBayesClassifier:
         posteriors = []
 
         # Calculate the posterior probability for each class
-        #### ADD YOUR CODE HERE #####
-
+        ########################################################################################################################## Added code starts here
         for class_label in self.classes_:
             prior = self.class_priors[class_label]
             mean = self.class_stats[class_label]['mean']
@@ -188,8 +243,8 @@ class MyBayesClassifier:
             posteriors.append(posterior)
 
         # Choose the class with the highest posterior probability
-        #### ADD YOUR CODE HERE #####
         prediction = self.classes_[np.argmax(posteriors)]
+        ########################################################################################################################## Added code ends here
         return prediction
 
     def _calculate_likelihood_1D(self, x, mean, cov):
@@ -204,14 +259,15 @@ class MyBayesClassifier:
         Returns:
         float: The likelihood value.
         """
-        #### ADD YOUR CODE HERE #####
+        ########################################################################################################################## Added code starts here
         likelihood = multivariate_normal.pdf(x, mean=mean, cov=cov)
+        ########################################################################################################################## Added code ends here
         return likelihood
 
 
-##############################################################################
-######    MAIN - CREATE FEATURES - TRAIN (NAIVE) BAYES CLASSIFIER
-##############################################################################
+###########################################################################
+######    MAIN - CREATE FEATURES - TRAIN (NAIVE) BAYES CLASSIFIER    ######
+###########################################################################
 def main(test_case = 0):
     # Read the training samples from the corresponding file
     nTrainSamples = 10000 # specify 'None' if you want to read the whole file
@@ -224,11 +280,17 @@ def main(test_case = 0):
     nTestSamples = 1000 # specify 'None' if you want to read the whole file
     df_test = pd.read_csv('data/mnist_test.csv', delimiter=',', nrows=nTestSamples)
     
-    df_test = df_test[df_test['label'].isin([0, 1, 2])] # Get samples from the selected digits only
+    df_test = df_test[df_test['label'].isin([1, 2])] # Get samples from the selected digits only
     target_test = df_test.label
     data_test = df_test.iloc[:, 1:]
 
     ############################# Create the features #############################
+    # if test_case == 0:
+    #     # Calculate aspect ratio as the first feature
+    #     df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
+    #     df_train['aspect_ratio'] = df_train['aspect_ratio']
+    
+    # elif test_case == 1:
     # Calculate aspect ratio as the first feature
     df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
     df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
@@ -243,12 +305,12 @@ def main(test_case = 0):
         df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
         df_train['centroid'] = min_max_scaling(df_train['centroid'])
     
-    # # Draw 10 sample images from the training data to make sure aspect ratio is correct
+    # Draw 10 sample images from the training data to make sure aspect ratio is correct
     # for sample in range (2):
     #     sample_image = data_train.iloc[sample].values.reshape(28, 28)
     #     visualize_bounding_box(sample_image)
 
-    # # Define the features to use for both train and test in this experiment
+    # Define the features to use for both train and test in this experiment
     if test_case == 0:
         features = ["aspect_ratio"]
     elif test_case == 1:
@@ -280,9 +342,8 @@ def main(test_case = 0):
     # Predict on the test samples (for the given feature set)
     test_data = df_test[features]
     predictions = classifier.predict(test_data)
-  
+
     # Calculate accuracy as an example of validation
-    #### ADD YOUR CODE HERE #####
     accuracy = accuracy_score(target_test, predictions)
     print("Classification accuracy:", accuracy)
 
@@ -290,9 +351,9 @@ def main(test_case = 0):
 ###########################################################
 ###########################################################
 if __name__ == "__main__":
-    print("Test case 0: Aspect ratio only")
+    print("Test case 1: Aspect ratio only")
     main(0)
-    print("\nTest case 1: Aspect ratio and number of foreground pixels")
+    print("\nTest case 2: Aspect ratio and number of foreground pixels")
     main(1)
-    print("\nTest case 2: Aspect ratio, number of foreground pixels, and centroid")
+    print("\nTest case 3: Aspect ratio, number of foreground pixels, and centroid")
     main(2)
